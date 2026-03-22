@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Muted Backup — RESTORER-038</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="app">
+
+  <!-- 顶部状态栏 -->
+  <div id="topbar">
+    <span class="tb-task">任务 #038-LOW-2026-0319</span>
+    <span class="tb-id">RESTORER-038</span>
+    <span class="tb-status">⚠ SYSTEM DEGRADED</span>
+  </div>
+
+  <!-- 左侧：命令手册 -->
+  <div id="left-panel">
+    <h3>命令手册 <span id="left-toggle" title="折叠">◀</span></h3>
+    <div id="manual-entries"></div>
+  </div>
+
+  <!-- 中间：终端 -->
+  <div id="terminal" class="mode-standard">
+    <div id="terminal-panel">
+      <div id="terminal-output"></div>
+    </div>
+    <div id="input-row">
+      <div id="input-prompt">
+        <span class="prompt-user">restorer@openclaw</span><span class="prompt-sep">:</span><span id="prompt-cwd" class="prompt-dir">~</span><span class="prompt-dollar">$</span>
+      </div>
+      <input type="text" id="terminal-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" autofocus>
+    </div>
+  </div>
+
+  <!-- 右侧：同步率 + 调查日志 -->
+  <div id="right-panel">
+    <div id="sync-box">
+      <div id="sync-label">神经同步率 <span id="hint-btn" title="获取提示">?</span></div>
+      <div id="sync-display">
+        <span id="sync-value">0%</span>
+        <canvas id="wave-canvas" width="120" height="28"></canvas>
+      </div>
+    </div>
+    <!-- 提示弹层 -->
+    <div id="hint-panel" style="display:none;">
+      <div id="hint-title">💡 当前提示</div>
+      <div id="hint-content"></div>
+      <div id="hint-close">关闭</div>
+    </div>
+    <div id="log-box">
+      <h3>调查日志</h3>
+      <div id="log-entries"></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- 脚本加载顺序 -->
+<script src="filesystem.js"></script>
+<script src="story.js"></script>
+<script src="audio.js"></script>
+<script src="ui.js"></script>
+<script src="commands.js"></script>
+<script src="endings.js"></script>
+<script src="game.js"></script>
+</body>
+</html>
