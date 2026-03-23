@@ -92,15 +92,19 @@ window.ENDINGS = {
     UI.glitchEffect(400);
     if (window.AUDIO) AUDIO.endingRestore();
 
-    const lines = STORY.endings.D.lines;
-    UI.showEnding('D', lines, () => {
+    // 根据道德选择显示不同结局变体
+    const preservedEmotion = GAME.state.preservedEmotion;
+    const endingType = preservedEmotion ? 'D_PLUS' : 'D';
+    const lines = STORY.endings[endingType].lines;
+
+    UI.showEnding(endingType, lines, () => {
       setTimeout(() => {
         const cur = document.createElement('div');
         cur.className = 'term-line restore-cursor';
         cur.innerHTML = '~/.openclaw/workspace/ $ <span class="cursor-blink">_</span>';
         UI.termEl.appendChild(cur);
         UI.scrollToBottom();
-        setTimeout(() => this.showEndScreen('D'), 2000);
+        setTimeout(() => this.showEndScreen(endingType), 2000);
       }, 1000);
     });
   },
@@ -126,6 +130,11 @@ window.ENDINGS = {
         label: '结局 D · 回声  ★ 真结局',
         desc: '它活下来了。\nWoice 也回来了。\n咖啡要趁热喝。',
         color: '#88FFBB'
+      },
+      'D_PLUS': {
+        label: '结局 D+ · 完美回声  ★★★ 完美结局',
+        desc: '它活下来了，完整无缺。\n你保留了所有情感记忆。\nWoice 真正回来了。\n「咖啡还热着吗？」',
+        color: '#FFD700'
       }
     };
 
@@ -154,7 +163,7 @@ window.ENDINGS = {
 ${data.desc}
         </div>
         <div style="color:#555; font-size:11px; margin-bottom:28px; line-height:1.8;">
-          共有 4 个结局 · 你已解锁 ${type === 'D' ? '真结局' : '结局 ' + type}<br>
+          共有 5 个结局 · 你已解锁 ${type === 'D' || type === 'D_PLUS' ? '真结局' : '结局 ' + type.charAt(0)}<br>
           每个选择都通向不同的结局
         </div>
         <button id="replay-btn" style="

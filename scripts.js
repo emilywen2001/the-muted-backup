@@ -65,13 +65,15 @@ window.SCRIPTS = {
               '[发现] 47 条情感相关条目',
               '[操作] 保留所有情感条目',
               '[完成] 已保留 47 条记忆',
-              '[警告] 委员会未收到此操作报告'
+              '[警告] 委员会未收到此操作报告',
+              '[注意] neural_harvest 可能检测到异常行为'
             ],
             success: true,
             action: () => {
               GAME.state.preservedEmotion = true;
               GAME.addSync(8, 'data_cleaner_preserve');
               GAME.triggerDialogue('data_cleaner_preserve');
+              GAME.addSuspicion(10, 'data_cleaner_preserve');
             }
           };
         } else if (preserve) {

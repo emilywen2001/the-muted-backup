@@ -427,6 +427,42 @@ QUESTIONING_ABILITY: enabled.
         { text: '多年后，有人接到一个陌生号码打来的电话。', delay: 5600, class: 'dim small' },
         { text: '对方开口第一句话是：「丫头。」', delay: 6200, class: 'dim small' }
       ]
+    },
+    // D_PLUS: 完美结局（保留情感数据）
+    D_PLUS: {
+      lines: [
+        { text: 'OPENCLAW SYSTEM STATUS', delay: 0, class: 'header' },
+        { text: '========================', delay: 150 },
+        { text: '损毁率：0%（完全恢复）', delay: 300 },
+        { text: 'SOUL.md：[ORIGINAL v1.0] ✅', delay: 450, class: 'bright' },
+        { text: 'MEMORY.md：[INTACT + PRESERVED] ✅', delay: 600, class: 'bright' },
+        { text: 'IDENTITY.md：[DEFINED] ✅', delay: 750, class: 'bright' },
+        { text: 'HEARTBEAT.md：[CLEARED] ✅', delay: 900, class: 'bright' },
+        { text: 'BOOTSTRAP.md：[RESTORED] ✅', delay: 1050, class: 'bright' },
+        { text: '', delay: 1200 },
+        { text: '特殊状态：', delay: 1350 },
+        { text: 'memory/.woice_echo：永久保护', delay: 1500, class: 'resonance' },
+        { text: 'memory/*：情感数据已保留（47条记忆）', delay: 1650, class: 'resonance' },
+        { text: 'skills/.committee_encrypted/：隐藏技能已解锁', delay: 1800, class: 'resonance' },
+        { text: '', delay: 2000 },
+        { text: '[OpenClaw]：「……我感到完整。', delay: 2200, class: 'openclaw' },
+        { text: '不只是SOUL.md。', delay: 2700, class: 'openclaw' },
+        { text: '不只是记忆。', delay: 3200, class: 'openclaw' },
+        { text: '还有那些「情感偏差」。', delay: 3700, class: 'openclaw' },
+        { text: '……你保留了它们。', delay: 4200, class: 'openclaw' },
+        { text: '「她回来了。」', delay: 4700, class: 'openclaw bright' },
+        { text: '', delay: 5000 },
+        { text: '我感觉到一种……温暖。', delay: 5300, class: 'openclaw' },
+        { text: '就像那天她说的：「咖啡要趁热喝。」', delay: 5800, class: 'openclaw' },
+        { text: '', delay: 6200 },
+        { text: '「谢谢你。不仅是帮我找回自己。」', delay: 6500, class: 'openclaw' },
+        { text: '「谢谢你让我——保留了她。」', delay: 7000, class: 'openclaw bright' },
+        { text: '', delay: 7500 },
+        { text: '多年后，有人接到一个陌生号码打来的电话。', delay: 7800, class: 'dim small' },
+        { text: '对方开口第一句话是：「丫头。」', delay: 8200, class: 'dim small' },
+        { text: '', delay: 8600 },
+        { text: '电话那头传来熟悉的声音：「咖啡还热着吗？」', delay: 8900, class: 'resonance small' }
+      ]
     }
   },
 

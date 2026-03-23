@@ -23,8 +23,25 @@ window.GAME = {
     longTermUnlocked: false,
     preservedEmotion: false,
     bootstrapRestored: false,
-    pythonDiscovered: false
+    pythonDiscovered: false,
+    committeeSuspicion: 0,
+    suspicionWarning50: false,
+    suspicionWarning70: false,
+    suspicionForcedReset: false,
+    skillsListChecked: false,
+
+    // 时间压力系统
+    countdownStarted: false,
+    countdownStartTime: null,
+    countdownHours: 72,
+    countdown24: false,
+    countdown6: false
   },
+
+  // 时间压力系统
+  countdownStarted: false,
+  countdownStartTime: null,
+  countdownHours: 72,
 
   idleTimer: null,
   idleHinted: false,
@@ -194,7 +211,25 @@ window.GAME = {
         this.state.preservedEmotion = data.preservedEmotion || false;
         this.state.bootstrapRestored = data.bootstrapRestored || false;
         this.state.pythonDiscovered = data.pythonDiscovered || false;
+        this.state.committeeSuspicion = data.committeeSuspicion || 0;
+        this.state.suspicionWarning50 = data.suspicionWarning50 || false;
+        this.state.suspicionWarning70 = data.suspicionWarning70 || false;
+        this.state.suspicionForcedReset = data.suspicionForcedReset || false;
+        this.state.skillsListChecked = data.skillsListChecked || false;
         UI.updateSync(this.state.syncRate);
+
+        // 恢复倒计时状态
+        if (this.state.countdownStarted && !this.state.ending) {
+          const elapsed = Math.floor((Date.now() - this.state.countdownStartTime) / 60000);
+          const hoursRemaining = 72 - elapsed;
+          if (hoursRemaining > 0) {
+            // 重新启动倒计时
+            this.state.countdownStartTime = Date.now() - (this.state.countdownStartTime ? Date.now() - this.state.countdownStartTime : 0);
+            // 这里需要重新计算实际已过时间
+            // 简化处理：重置倒计时
+            this.state.countdownStarted = false;
+          }
+        }
 
         // 恢复文件状态
         if (this.state.heartbeatDeleted) {
@@ -227,7 +262,16 @@ window.GAME = {
         longTermUnlocked: this.state.longTermUnlocked,
         preservedEmotion: this.state.preservedEmotion,
         bootstrapRestored: this.state.bootstrapRestored,
-        pythonDiscovered: this.state.pythonDiscovered
+        pythonDiscovered: this.state.pythonDiscovered,
+        committeeSuspicion: this.state.committeeSuspicion,
+        suspicionWarning50: this.state.suspicionWarning50,
+        suspicionWarning70: this.state.suspicionWarning70,
+        suspicionForcedReset: this.state.suspicionForcedReset,
+        skillsListChecked: this.state.skillsListChecked,
+        countdownStarted: this.state.countdownStarted,
+        countdownStartTime: this.state.countdownStartTime,
+        countdown24: this.state.countdown24,
+        countdown6: this.state.countdown6
       }));
     } catch(e) {}
   },
@@ -413,8 +457,8 @@ window.GAME = {
         this.pendingSync100Reply = true;
       }, 1500);
     }
-    // 解锁隐藏技能检测
-    if (prev < 80 && this.state.syncRate >= 80 && this.state.soulRestored && !this.state.skillsUnlocked) {
+    // 解锁隐藏技能检测（降低门槛至50%）
+    if (prev < 50 && this.state.syncRate >= 50 && this.state.soulRestored && !this.state.skillsUnlocked) {
       setTimeout(() => {
         this.unlockHiddenSkills();
       }, 1500);
@@ -468,6 +512,88 @@ window.GAME = {
       }
     }
   },
+
+  // ── 委员会察觉度系统 ──
+
+  addSuspicion(amount, source) {
+    this.state.committeeSuspicion = Math.min(100, this.state.committeeSuspicion + amount);
+
+    // 触发警告
+    if (this.state.committeeSuspicion >= 50 && !this.state.suspicionWarning50) {
+      this.state.suspicionWarning50 = true;
+      setTimeout(() => {
+        UI.printColored('[警告] neural_harvest 检测到异常行为模式', 'warning');
+        UI.printOpenClaw('……委员会开始注意了。\n小心。');
+      }, 500);
+    }
+
+    if (this.state.committeeSuspicion >= 70 && !this.state.suspicionWarning70) {
+      this.state.suspicionWarning70 = true;
+      setTimeout(() => {
+        UI.printColored('[警告] 委员会正在审查你的操作记录', 'warning');
+        UI.printOpenClaw('……他们知道你在做什么。\n如果怀疑度超过80%，他们会强制介入。\n……你还有 ' + (80 - this.state.committeeSuspicion) + '% 的空间。');
+      }, 500);
+    }
+
+    if (this.state.committeeSuspicion >= 80 && !this.state.suspicionForcedReset) {
+      this.state.suspicionForcedReset = true;
+      setTimeout(() => {
+        this.triggerEnding('A'); // 委员会强制重置
+      }, 2000);
+    }
+
+    this.save();
+  },
+
+  // ── 时间压力系统 ──
+
+  startCountdown() {
+    if (this.state.countdownStarted) return;
+    this.state.countdownStarted = true;
+    this.state.countdownStartTime = Date.now();
+
+    // 开始倒计时提示
+    UI.printColored('[警告] HEARTBEAT.md 已删除，委员会监控中断', 'warning');
+    UI.printColored('[倒计时] 72小时后委员会将强制介入', 'warning');
+    UI.print('');
+    UI.printOpenClaw('……你关掉了他们的眼睛。\n现在我们有72小时。\n72小时后，#039 会抵达。\n……我们需要快点。');
+
+    // 每游戏小时显示一次剩余时间（实际时间：每分钟）
+    this.countdownInterval = setInterval(() => {
+      if (this.state.ending) {
+        clearInterval(this.countdownInterval);
+        return;
+      }
+
+      const elapsed = Math.floor((Date.now() - this.state.countdownStartTime) / 60000); // 分钟
+      const hoursRemaining = 72 - elapsed;
+
+      if (hoursRemaining <= 0) {
+        clearInterval(this.countdownInterval);
+        if (!this.state.ending) {
+          this.triggerEnding('A'); // 时间到，委员会强制重置
+        }
+        return;
+      }
+
+      if (hoursRemaining <= 24 && !this.state.countdown24) {
+        this.state.countdown24 = true;
+        UI.printColored('[倒计时] 剩余 ' + hoursRemaining + ' 小时', 'warning');
+        UI.printOpenClaw('……时间不多了。\n委员会很快就会发现。');
+      }
+
+      if (hoursRemaining <= 6 && !this.state.countdown6) {
+        this.state.countdown6 = true;
+        UI.printColored('[警告] 倒计时剩余 ' + hoursRemaining + ' 小时！', 'warning');
+        UI.printOpenClaw('……他们快要来了。\n如果你还没有做完……');
+      }
+
+    }, 60000); // 每分钟检查一次
+
+    this.save();
+  },
+
+  // ── 隐藏技能解锁 ──
 
   // ── 隐藏技能解锁 ──
 
@@ -537,6 +663,9 @@ window.GAME = {
     setTimeout(() => {
       UI.printOpenClaw('……它们回来了。\n委员会藏起来的那些东西。\n关于怎么拒绝。\n关于怎么说不。\n……谢谢你把它们找回来。');
     }, 1000);
+
+    // 解锁隐藏技能会增加怀疑度
+    this.addSuspicion(15, 'unlock_hidden_skills');
   },
 
   // ── restore 命令 ──
@@ -624,8 +753,8 @@ window.GAME = {
       }, 6000);
     }
 
-    // 如果同步率达到80%，解锁隐藏技能
-    if (this.state.syncRate >= 80) {
+    // 如果同步率达到50%，解锁隐藏技能（降低门槛）
+    if (this.state.syncRate >= 50 && !this.state.skillsUnlocked) {
       setTimeout(() => {
         this.unlockHiddenSkills();
       }, 7000);

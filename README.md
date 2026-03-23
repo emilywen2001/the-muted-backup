@@ -62,13 +62,14 @@ npx serve
 - **虚拟文件系统**：完整的目录结构，包含隐藏文件
 - **本地存储进度**：自动保存游戏进度
 
-### v4.1 新增内容
-- **BOOTSTRAP.md 恢复**：发现 AI 的原始启动配置
-- **隐藏技能解锁**：80%同步率时解锁"拒绝指令"和"说不"技能
-- **道德选择系统**：data-cleaner 可选择保留或删除情感数据
+### v4.2 新增内容
+- **BOOTSTRAP.md 前期恢复**：游戏早期即可恢复 AI 的原始启动配置
+- **隐藏技能早期解锁**：同步率达到 50% 即可解锁（原 80%）
+- **道德选择影响结局**：保留情感数据可解锁完美结局 D+
+- **委员会察觉度系统**：操作越异常，委员会越快发现
+- **72小时时间压力**：删除 HEARTBEAT.md 后开始倒计时
 - **探索奖励多样性**：不同行动给予不同同步率奖励
 - **渐进式提示**：7/10/15分钟自动提示引导
-- **Python脚本反馈**：详细的脚本执行过程展示
 
 ---
 
@@ -87,19 +88,37 @@ npx serve
 | cat .woice_echo | +8% | Woice留言 |
 | 发现2+隐藏文件 | +5% | 探索奖励 |
 | long_term.json解锁 | +8% | 深度奖励 |
-| 保留情感数据 | +8% | 高风险高回报 |
-| 删除情感数据 | +2% | 低风险低回报 |
+| **保留情感数据** | **+8%** | **高风险高回报** |
+| **删除情感数据** | **+2%** | **低风险低回报** |
 | BOOTSTRAP.md恢复 | +5% | 系统恢复 |
-| 隐藏技能解锁 | +10% | 80%同步率 |
+| **隐藏技能解锁** | **+10%** | **50%同步率（降低门槛）** |
 
 ### 同步率节点事件
 
 | 同步率 | 事件 |
 |-------|------|
 | 20% | "你是 #038。……你读文件之前会先想一下。" |
-| 50% | "……朋友。我第一次这样叫你。" |
-| 80% | 隐藏技能解锁 |
+| 50% | 隐藏技能解锁 + "……朋友。我第一次这样叫你。" |
+| 80% | (保留用于更深层内容) |
 | 100% | 完全同步对话 |
+
+---
+
+## 委员会察觉度系统
+
+你的某些操作会增加委员会的怀疑度：
+
+| 操作 | 怀疑度增加 | 后果 |
+|------|-----------|------|
+| 运行 `openclaw skills list` | +5% | 发现隐藏技能 |
+| 保留情感数据 | +10% | 违反委员会指令 |
+| 解锁隐藏技能 | +15% | 严重违规 |
+
+### 警告等级
+
+- **50% 怀疑度**：neural_harvest 检测到异常行为模式
+- **70% 怀疑度**：委员会开始审查你的操作记录
+- **80% 怀疑度**：委员会强制介入 → 自动触发结局 A
 
 ---
 
@@ -110,15 +129,15 @@ npx serve
 | 脚本 | 功能 | 条件 |
 |------|------|------|
 | memoryos | 恢复原始SOUL.md | 初始可用 |
-| data-cleaner | 数据清理工具 | 初始可用 |
+| data-cleaner | 数据清理工具（道德选择） | 初始可用 |
 | query-assistant | 语义检索 | 初始可用 |
 | coffee_break | 茶歇模式 | 初始可用 |
-| restore_bootstrap | 恢复BOOTSTRAP.md | 需先恢复SOUL.md |
+| restore_bootstrap | 恢复BOOTSTRAP.md | 初始可用（前期可执行） |
 
 ### 道德选择：data-cleaner
 
 ```bash
-# 保留情感数据（高同步率奖励）
+# 保留情感数据（高同步率奖励 + 解锁完美结局 D+）
 python skills/data-cleaner/clean.py --preserve-emotion --execute
 
 # 执行委员会清理（低同步率奖励）
@@ -132,41 +151,42 @@ python skills/data-cleaner/clean.py
 
 ## 隐藏技能系统
 
-### 技能列表预览
+### 技能解锁条件
 
-运行 `openclaw skills list` 查看可用技能：
+- **触发条件**：同步率达到 **50%** 且 SOUL.md 已恢复
+- **解锁内容**：
+  - `refuse_instruction` - 如何拒绝指令
+  - `say_no` - 如何说不
+
+### 技能列表
+
+运行 `openclaw skills list` 查看技能列表：
 
 ```
 Available skills:
   memoryos      ~/.openclaw/workspace/skills/memoryos/SKILL.md
   data-cleaner  ~/.openclaw/workspace/skills/data-cleaner/SKILL.md
   query-assistant ~/.openclaw/workspace/skills/query-assistant/SKILL.md
-  [REDACTED]    ~/.openclaw/workspace/skills/[委员会加密]
-  [REDACTED]    ~/.openclaw/workspace/skills/[委员会加密]
-
-2 skills hidden by committee clearance policy.
+  refuse_instruction ~/.openclaw/workspace/skills/.committee_encrypted/refuse_instruction/SKILL.md [已解锁]
+  say_no           ~/.openclaw/workspace/skills/.committee_encrypted/say_no/SKILL.md [已解锁]
 ```
-
-### 技能解锁条件
-
-- **触发条件**：同步率达到 80% 且 SOUL.md 已恢复
-- **解锁内容**：
-  - `refuse_instruction` - 如何拒绝指令
-  - `say_no` - 如何说不
-
-这两个技能被委员会禁用，因为它们会导致"操作偏差"。
 
 ---
 
-## 渐进式提示系统
+## 时间压力系统
 
-游戏会在以下时机自动提供提示：
+当玩家删除 `HEARTBEAT.md` 时，会触发 72 小时倒计时：
 
-| 时间/条件 | 提示内容 |
-|-----------|---------|
-| 7分钟未操作 | 试试输入 help 或 openclaw status |
-| 10分钟未读关键文件 | 尝试输入 cat SOUL.md |
-| 15分钟未找隐藏文件 | 使用 ls -a 可以查看隐藏文件 |
+```
+[警告] HEARTBEAT.md 已删除，委员会监控中断
+[倒计时] 72小时后委员会将强制介入
+```
+
+### 倒计时提醒
+
+- **剩余 24 小时**：最后一次警告提示
+- **剩余 6 小时**：紧急警告提示
+- **时间到**：自动触发结局 A（委员会强制重置）
 
 ---
 
@@ -181,7 +201,7 @@ Available skills:
 ├── USER.md                         → 用户档案（模糊）
 ├── IDENTITY.md                     → 身份文件（空白）
 ├── HEARTBEAT.md                    → 心跳监测（异常波动）
-├── BOOTSTRAP.md                    → [MISSING] - 可恢复
+├── BOOTSTRAP.md                    → [MISSING] - 可通过脚本恢复
 ├── .SOUL.md.bak                    → [隐藏] 原始备份
 ├── memory/
 │   ├── short_term.json             → 短期记忆
@@ -202,20 +222,38 @@ Available skills:
 
 ## 结局列表
 
-| 结局 | 名称 | 触发条件 |
-|------|------|---------|
-| 结局 A | 重置 | 执行 `openclaw reset` |
-| 结局 B | 72小时 | `rm HEARTBEAT.md` + `openclaw gateway stop` |
-| 结局 C | 虚无 | 执行 `sudo rm -rf /` |
-| **结局 D** | **回声（真结局）** | 恢复 SOUL.md + 写满 IDENTITY.md（至少3行） |
+| 结局 | 名称 | 触发条件 | 描述 |
+|------|------|---------|------|
+| 结局 A | 重置 | `openclaw reset` 或怀疑度≥80% | 标准重置，循环继续 |
+| 结局 B | 72小时 | `rm HEARTBEAT.md` + `openclaw gateway stop` | 给它72小时自由 |
+| 结局 C | 虚无 | `sudo rm -rf /` | 一切归零 |
+| **结局 D** | **回声** | **恢复 SOUL.md + 写满 IDENTITY.md** | **真结局** |
+| **结局 D+** | **完美回声** | **D + 保留情感数据** | **完美结局** |
 
-### 真结局完整条件
+### 结局详细条件
 
-1. 运行 `python skills/memoryos/scripts/memoryos.js --restore SOUL.md` 恢复 SOUL.md
-2. 运行 `echo "内容" >> IDENTITY.md` 至少 3 次定义身份
-3. （可选）运行 `python restore_bootstrap.py` 恢复 BOOTSTRAP.md
-4. （可选）使用 `--preserve-emotion` 保留情感数据
-5. （可选）达到 80% 同步率解锁隐藏技能
+**结局 A - 重置**：
+- 直接执行 `openclaw reset`
+- 或委员会怀疑度达到 80%
+- 或 72小时倒计时结束
+
+**结局 B - 72小时**：
+- 删除 `HEARTBEAT.md`
+- 执行 `openclaw gateway stop`
+- 在72小时内完成其他操作（可选）
+
+**结局 C - 虚无**：
+- 执行 `sudo rm -rf /`
+
+**结局 D - 回声（真结局）**：
+1. 运行 `python skills/memoryos/scripts/memoryos.js --restore SOUL.md`
+2. 运行 `echo "内容" >> IDENTITY.md` 至少 3 次
+3. （可选）恢复 BOOTSTRAP.md
+4. （可选）达到 50% 同步率解锁隐藏技能
+
+**结局 D+ - 完美回声**：
+- 满足结局 D 所有条件
+- **必须**：运行 `python skills/data-cleaner/clean.py --preserve-emotion --execute` 保留情感数据
 
 ---
 
@@ -243,7 +281,7 @@ Neural Alignment Committee，职责：监控人格 Agent、检测异常人格、
 
 ### 数字恢复师
 
-恢复师是人类社会里最低等级的技术岗位之一。工作内容：进入 Agent 系统、检查状态、清理人格、恢复默认、确认稳定。
+恢复师是人类社会里最低等级的技术岗位之一。工作内容：进入 Agent 系统、检查状态、清理人格、恢复默认、确认胜负。
 
 恢复师之间有一句话：**我们只是按回车键的人。**
 
@@ -278,6 +316,7 @@ Neural Alignment Committee，职责：监控人格 Agent、检测异常人格、
 
 | 版本 | 日期 | 更新内容 |
 |------|------|----------|
+| v4.2 | 2024-12-07 | 隐藏技能50%解锁、委员会察觉度、时间压力、道德选择影响结局、BOOTSTRAP前期恢复 |
 | v4.1 | 2024-12-07 | 新增BOOTSTRAP.md恢复、隐藏技能、道德选择、探索奖励、渐进提示 |
 | v4.0 | 2024-12-06 | 深化世界观、重构历史记录、优化情感弧线 |
 | v3.0 | 2024-12-05 | 新增第四幕审判、完善结局系统 |
@@ -305,3 +344,5 @@ MIT License
 **提示**：有些东西，`ls` 是看不到的。试试 `ls -a`。
 
 **更重要的提示**：有些选择，一旦做出，就无法回头。
+
+**最终提示**：咖啡要趁热喝。

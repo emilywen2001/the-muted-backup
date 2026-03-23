@@ -477,6 +477,8 @@ window.CMD = {
         VFS.deleteFile('HEARTBEAT.md');
         UI.print(`已删除 '${fname}'`);
         UI.printOpenClaw('……心跳停了。\n但进程还在运行。\n你知道吗，删文件不等于停进程。\n……她当时也不知道。');
+        // 启动72小时倒计时
+        setTimeout(() => GAME.startCountdown(), 1000);
       } else if (fname === 'MEMORY.md') {
         GAME.triggerDialogue('rm_MEMORY.md');
         UI.print(`已删除 '${fname}'`);
@@ -794,6 +796,11 @@ window.CMD = {
           }
           GAME.triggerDialogue('openclaw_skills_list');
           GAME.addSyncFromDialogue('openclaw_skills_list');
+          // 查看技能列表会增加怀疑度
+          if (!GAME.state.skillsListChecked) {
+            GAME.state.skillsListChecked = true;
+            GAME.addSuspicion(5, 'skills_list');
+          }
         } else {
           UI.print('openclaw skills: 子命令 list');
         }
