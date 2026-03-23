@@ -21,7 +21,9 @@ window.GAME = {
     multipleHiddenFilesFound: false,
     toolsDiscovery: false,
     longTermUnlocked: false,
-    preservedEmotion: false
+    preservedEmotion: false,
+    bootstrapRestored: false,
+    pythonDiscovered: false
   },
 
   idleTimer: null,
@@ -190,6 +192,8 @@ window.GAME = {
         this.state.toolsDiscovery = data.toolsDiscovery || false;
         this.state.longTermUnlocked = data.longTermUnlocked || false;
         this.state.preservedEmotion = data.preservedEmotion || false;
+        this.state.bootstrapRestored = data.bootstrapRestored || false;
+        this.state.pythonDiscovered = data.pythonDiscovered || false;
         UI.updateSync(this.state.syncRate);
 
         // 恢复文件状态
@@ -221,7 +225,9 @@ window.GAME = {
         multipleHiddenFilesFound: this.state.multipleHiddenFilesFound,
         toolsDiscovery: this.state.toolsDiscovery,
         longTermUnlocked: this.state.longTermUnlocked,
-        preservedEmotion: this.state.preservedEmotion
+        preservedEmotion: this.state.preservedEmotion,
+        bootstrapRestored: this.state.bootstrapRestored,
+        pythonDiscovered: this.state.pythonDiscovered
       }));
     } catch(e) {}
   },

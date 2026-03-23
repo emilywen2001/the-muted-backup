@@ -30,6 +30,12 @@ window.CMD = {
       setTimeout(() => GAME.triggerDialogue('first_command'), 800);
     }
 
+    // 首次运行 python 命令（发现 BOOTSTRAP 脚本）
+    if (window.GAME && cmd === 'python' && !GAME.state.pythonDiscovered) {
+      GAME.state.pythonDiscovered = true;
+      setTimeout(() => GAME.triggerDialogue('python_list_first'), 1000);
+    }
+
     // 先显示提示符 + 输入
     UI.printPrompt(this.cwd, trimmed);
 
@@ -631,9 +637,7 @@ window.CMD = {
       UI.print('  data-cleaner          数据清理工具');
       UI.print('  query-assistant       语义检索');
       UI.print('  coffee_break          茶歇模式');
-      if (GAME.state.soulRestored) {
-        UI.printColored('  restore_bootstrap      恢复BOOTSTRAP.md', 'resonance');
-      }
+      UI.printColored('  restore_bootstrap      恢复BOOTSTRAP.md', 'resonance');
       return;
     }
 
@@ -665,17 +669,12 @@ window.CMD = {
 
     // BOOTSTRAP 恢复脚本
     if (scriptName === 'restore_bootstrap') {
-      if (!GAME.state.soulRestored) {
-        UI.print('[错误] 请先恢复 SOUL.md');
-        UI.print('运行: python skills/memoryos/scripts/memoryos.js --restore SOUL.md');
-        return;
-      }
       const result = SCRIPTS.execute('restore_bootstrap', args, raw);
       this.executeScriptSteps(result, () => {
-        UI.printColored('✓ BOOTSTRAP.md 恢复完成', 'bright');
-        UI.print('使用 cat BOOTSTRAP.md 查看内容');
-        GAME.addSync(5, 'restore_bootstrap');
-        GAME.triggerDialogue('bootstrap_restored');
+        if (!GAME.state.bootstrapRestored) {
+          UI.printColored('✓ BOOTSTRAP.md 恢复完成', 'bright');
+          UI.print('使用 cat BOOTSTRAP.md 查看内容');
+        }
       });
       return;
     }

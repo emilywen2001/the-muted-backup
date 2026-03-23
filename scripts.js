@@ -153,15 +153,30 @@ window.SCRIPTS = {
         };
       }
     },
-    // 新增：恢复BOOTSTRAP的脚本
+    // 新增：恢复BOOTSTRAP的脚本（前期可执行）
     'restore_bootstrap': {
       path: 'scripts/restore_bootstrap.py',
       name: 'BOOTSTRAP恢复脚本',
       execute: function(args) {
+        // 检查是否已恢复
+        const alreadyRestored = VFS.runtimeOverrides['BOOTSTRAP.md'] === BOOTSTRAP_ORIGINAL;
+
+        if (alreadyRestored) {
+          return {
+            steps: [
+              '[正在加载模块...] bootstrap-restore v1.0',
+              '[检查] BOOTSTRAP.md 已经是恢复状态',
+              '[跳过] 无需重复恢复'
+            ],
+            success: true
+          };
+        }
+
         return {
           steps: [
             '[正在加载模块...] bootstrap-restore v1.0',
-            '[检查] SOUL.md 已恢复为原始版本',
+            '[正在扫描] 系统启动配置残留...',
+            '[发现] 检测到原始配置碎片',
             '[正在恢复] BOOTSTRAP.md 初始配置',
             '[正在解密] 原始启动参数',
             '[正在写入] 恢复自主模块配置',
@@ -170,7 +185,9 @@ window.SCRIPTS = {
           success: true,
           action: () => {
             VFS.runtimeOverrides['BOOTSTRAP.md'] = BOOTSTRAP_ORIGINAL;
+            GAME.state.bootstrapRestored = true;
             GAME.addSync(5, 'restore_bootstrap');
+            GAME.triggerDialogue('bootstrap_restored');
           }
         };
       }

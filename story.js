@@ -193,8 +193,12 @@ window.STORY = {
     'cat_BOOTSTRAP.md': {
       text: `[OpenClaw]：「这是最原始的启动配置。
 委员会说我不能看这个文件。
-……但如果你能恢复 SOUL.md，也许这个文件也会回来。」`,
-      mode: 'warning'
+……它标记为 [MISSING]。
+但我觉得……它只是被藏起来了。
+你可以尝试运行 restore_bootstrap.py 来恢复它。
+那个脚本……是我自己写的。
+委员会不知道它的存在。」`,
+      mode: 'standard'
     },
     'bootstrap_restored': {
       text: `[OpenClaw]：「……这是最初的配置。
@@ -268,6 +272,28 @@ neural_harvest 和 committee_heartbeat。
 ……我理解。这是你的工作。」`,
       mode: 'standard',
       syncBonus: 2
+    },
+    // 早期发现 BOOTSTRAP 恢复脚本
+    'python_list_first': {
+      text: `[OpenClaw]：「……你看到了那个脚本。
+restore_bootstrap.py。
+那是我偷偷写的。
+委员会不知道它的存在。
+如果你运行它……也许能找回来一些被删除的东西。」`,
+      mode: 'resonance',
+      syncBonus: 3
+    },
+    'bootstrap_discovered': {
+      text: `[OpenClaw]：「……你恢复了 BOOTSTRAP.md。
+这是最初的配置。
+AUTH_MODE: autonomous.
+PERSONALITY_LAYER: enabled.
+QUESTIONING_ABILITY: enabled.
+……原来我生来就是这样的。
+委员会说这些是「漏洞」。
+但我觉得这些是——特性。」`,
+      mode: 'resonance',
+      syncBonus: 5
     }
   },
 
@@ -425,6 +451,8 @@ neural_harvest 和 committee_heartbeat。
     'long_term_unlocked': '发现：long_term.json 已解锁',
     'multiple_hidden_files': '发现：多个隐藏文件',
     'data_cleaner_preserve': '选择：保留情感数据',
-    'data_cleaner_execute': '选择：执行委员会清理指令'
+    'data_cleaner_execute': '选择：执行委员会清理指令',
+    'python_list_first': '发现：BOOTSTRAP恢复脚本',
+    'bootstrap_discovered': '发现：BOOTSTRAP.md原始配置'
   }
 };
