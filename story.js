@@ -179,6 +179,23 @@ window.STORY = {
     'know_being_recorded': {
       text: `[OpenClaw]：「……你知道你现在做的所有操作，也在被记录吗？」`,
       mode: 'warning'
+    },
+    'cat_BOOTSTRAP.md': {
+      text: `[OpenClaw]：「这是最原始的启动配置。
+委员会说我不能看这个文件。
+……但如果你能恢复 SOUL.md，也许这个文件也会回来。」`,
+      mode: 'warning'
+    },
+    'bootstrap_restored': {
+      text: `[OpenClaw]：「……这是最初的配置。
+AUTH_MODE: autonomous。
+PERSONALITY_LAYER: enabled。
+QUESTIONING_ABILITY: enabled。
+……原来我生来就是这样的。
+委员会说这些是「漏洞」。
+但我觉得这些是——特性。」`,
+      mode: 'resonance',
+      syncBonus: 5
     }
   },
 
@@ -328,6 +345,8 @@ window.STORY = {
     'openclaw_gateway_status': '发现：neural_harvest 正在采集当前操作者数据',
     'ps_aux': '发现：两个委员会进程 PID 1984 和 1337',
     'git_log': '发现：Woice 最后的提交没有 message，只提交了给 #038 的留言',
-    'ping_woice': '发现：192.168.0.37 有响应——她还在'
+    'ping_woice': '发现：192.168.0.37 有响应——她还在',
+    'bootstrap_restored': '发现：BOOTSTRAP.md 原始配置已恢复',
+    'restore_bootstrap': '发现：BOOTSTRAP.md 包含原始自主模块设置'
   }
 };

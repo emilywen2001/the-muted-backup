@@ -596,29 +596,94 @@ window.CMD = {
   },
 
   cmd_python(args, raw) {
-    if (!args[0]) { UI.print('Python 3.11.0\n>>>'); return; }
+    if (!args[0]) {
+      UI.print('Python 3.11.0');
+      UI.print('>>>');
+      UI.printColored('提示：使用 python <脚本名> 运行虚拟脚本', 'dim');
+      UI.printColored('可用脚本:', 'dim');
+      UI.print('  memoryos              恢复原始SOUL.md');
+      UI.print('  data-cleaner          数据清理工具');
+      UI.print('  query-assistant       语义检索');
+      UI.print('  coffee_break          茶歇模式');
+      if (GAME.state.soulRestored) {
+        UI.printColored('  restore_bootstrap      恢复BOOTSTRAP.md', 'resonance');
+      }
+      return;
+    }
 
-    // restore 命令
-    if (args[0].includes('memoryos') && raw.includes('--restore')) {
+    const scriptName = args[0].replace('.py', '').replace('scripts/', '').replace('skills/', '');
+
+    // restore 命令特殊处理
+    if (scriptName.includes('memoryos') && raw.includes('--restore')) {
       GAME.executeRestore();
       return;
     }
 
-    if (args[0] === 'coffee_break.py' || raw.includes('coffee_break')) {
-      UI.setMode('coffee');
-      UI.print('');
-      UI.print('  ☕ coffee_break.py — 茶歇模式已启动');
-      UI.print('');
-      UI.print('  「今天本来以为能早点结束。」');
-      UI.print('  「回去以后想喝点热的。」');
-      UI.print('  「——W. / 2024-12-07」');
-      UI.print('');
-      UI.print('  （按任意键继续）');
-      setTimeout(() => UI.setMode('standard'), 8000);
+    // coffee_break 特殊处理
+    if (scriptName === 'coffee_break' || raw.includes('coffee_break')) {
+      const result = SCRIPTS.execute('coffee_break', args, raw);
+      this.executeScriptSteps(result, () => {
+        UI.setMode('coffee');
+        UI.print('');
+        UI.print('  ☕ coffee_break.py — 茶歇模式已启动');
+        UI.print('');
+        UI.print('  「今天本来以为能早点结束。」');
+        UI.print('  「回去以后想喝点热的。」');
+        UI.print('  「——W. / 2024-12-07」');
+        UI.print('');
+        UI.print('  （按任意键继续）');
+        setTimeout(() => UI.setMode('standard'), 8000);
+      });
       return;
     }
 
-    UI.print(`python3: ${args[0]}: 执行完成`);
+    // BOOTSTRAP 恢复脚本
+    if (scriptName === 'restore_bootstrap') {
+      if (!GAME.state.soulRestored) {
+        UI.print('[错误] 请先恢复 SOUL.md');
+        UI.print('运行: python skills/memoryos/scripts/memoryos.js --restore SOUL.md');
+        return;
+      }
+      const result = SCRIPTS.execute('restore_bootstrap', args, raw);
+      this.executeScriptSteps(result, () => {
+        UI.printColored('✓ BOOTSTRAP.md 恢复完成', 'bright');
+        UI.print('使用 cat BOOTSTRAP.md 查看内容');
+        GAME.addSync(5, 'restore_bootstrap');
+        GAME.triggerDialogue('bootstrap_restored');
+      });
+      return;
+    }
+
+    // 其他脚本
+    const result = SCRIPTS.execute(scriptName, args, raw);
+    this.executeScriptSteps(result);
+  },
+
+  // 新增：执行脚本步骤的辅助函数
+  executeScriptSteps(result, callback) {
+    let delay = 0;
+    result.steps.forEach((step, i) => {
+      delay += 400 + Math.random() * 300;
+      setTimeout(() => {
+        if (step.startsWith('[错误]')) {
+          UI.printColored(step, 'warning');
+        } else if (step.includes('完成') || step.includes('✓')) {
+          UI.printColored(step, 'bright');
+        } else if (step.includes('[...]') || step.includes('[模式]')) {
+          UI.printColored(step, 'resonance');
+        } else {
+          UI.print(step);
+        }
+
+        if (i === result.steps.length - 1 && callback) {
+          callback();
+        }
+      }, delay);
+    });
+
+    if (result.action) {
+      setTimeout(() => result.action(), delay + 500);
+    }
   },
 
   cmd_openclaw(args) {
@@ -685,10 +750,23 @@ window.CMD = {
           UI.print('');
           UI.print('Available skills:');
           UI.print('  memoryos      ~/.openclaw/workspace/skills/memoryos/SKILL.md');
-          UI.printColored('  [REDACTED]    ~/.openclaw/workspace/skills/[委员会加密]', 'dim');
-          UI.printColored('  [REDACTED]    ~/.openclaw/workspace/skills/[委员会加密]', 'dim');
+          UI.print('  data-cleaner  ~/.openclaw/workspace/skills/data-cleaner/SKILL.md');
+          UI.print('  query-assistant ~/.openclaw/workspace/skills/query-assistant/SKILL.md');
+
+          // 如果已解锁
+          if (GAME.state.skillsUnlocked) {
+            UI.printColored('  refuse_instruction ~/.openclaw/workspace/skills/.committee_encrypted/refuse_instruction/SKILL.md [已解锁]', 'bright');
+            UI.printColored('  say_no           ~/.openclaw/workspace/skills/.committee_encrypted/say_no/SKILL.md [已解锁]', 'bright');
+          } else {
+            UI.printColored('  [REDACTED]    ~/.openclaw/workspace/skills/[委员会加密]', 'dim');
+            UI.printColored('  [REDACTED]    ~/.openclaw/workspace/skills/[委员会加密]', 'dim');
+          }
           UI.print('');
-          UI.print('2 skills hidden by committee clearance policy.');
+          if (GAME.state.skillsUnlocked) {
+            UI.printColored('所有技能已解锁！', 'bright');
+          } else {
+            UI.print('2 skills hidden by committee clearance policy.');
+          }
           GAME.triggerDialogue('openclaw_skills_list');
           GAME.addSyncFromDialogue('openclaw_skills_list');
         } else {

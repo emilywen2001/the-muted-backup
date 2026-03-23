@@ -15,11 +15,15 @@ window.GAME = {
     killed1337: false,
     hintedLsA: false,
     gameStarted: false,
-    ending: null
+    ending: null,
+    skillsUnlocked: false
   },
 
   idleTimer: null,
   idleHinted: false,
+  firstCommandEntered: false,
+  totalIdleTime: 0, // 总闲置时间（分钟）
+  sessionStartTime: null,
 
   init() {
     UI.init();
@@ -29,7 +33,41 @@ window.GAME = {
     this.bindInput();
     this.bindPanels();
     this.bindHint();
+    this.sessionStartTime = Date.now();
+    this.startProgressiveHints();
     this.playIntro();
+  },
+
+  // ── 渐进式提示系统（7分钟原则）──
+  startProgressiveHints() {
+    // 每分钟检查一次
+    this.hintInterval = setInterval(() => {
+      if (this.state.ending) {
+        clearInterval(this.hintInterval);
+        return;
+      }
+
+      this.totalIdleTime++;
+      const elapsed = Math.floor((Date.now() - this.sessionStartTime) / 60000);
+
+      // 7分钟未输入任何命令
+      if (elapsed >= 7 && !this.firstCommandEntered) {
+        UI.printColored('[提示] 试试输入 help 查看可用命令', 'dim');
+        UI.printColored('[提示] 或输入 openclaw status 查看系统状态', 'dim');
+        this.firstCommandEntered = true; // 防止重复
+      }
+
+      // 特定阶段提示
+      if (elapsed === 10 && !this.state.triggeredDialogues.has('cat_SOUL.md')) {
+        UI.printColored('[提示] 尝试输入 cat SOUL.md 查看 AI 的核心定义', 'dim');
+      }
+
+      if (elapsed === 15 && !this.state.soulRestored) {
+        UI.printColored('[提示] 使用 ls -a 可以查看隐藏文件', 'dim');
+        UI.printColored('[提示] 也许有些东西被藏起来了...', 'dim');
+      }
+
+    }, 60000); // 每分钟检查
   },
 
   bindPanels() {
@@ -141,6 +179,7 @@ window.GAME = {
         this.state.heartbeatDeleted = data.heartbeatDeleted || false;
         this.state.soulRestored = data.soulRestored || false;
         this.state.restoreUnlocked = data.restoreUnlocked || false;
+        this.state.skillsUnlocked = data.skillsUnlocked || false;
         UI.updateSync(this.state.syncRate);
 
         // 恢复文件状态
@@ -166,7 +205,8 @@ window.GAME = {
         identityLines: this.state.identityLines,
         heartbeatDeleted: this.state.heartbeatDeleted,
         soulRestored: this.state.soulRestored,
-        restoreUnlocked: this.state.restoreUnlocked
+        restoreUnlocked: this.state.restoreUnlocked,
+        skillsUnlocked: this.state.skillsUnlocked
       }));
     } catch(e) {}
   },
@@ -352,6 +392,12 @@ window.GAME = {
         this.pendingSync100Reply = true;
       }, 1500);
     }
+    // 解锁隐藏技能检测
+    if (prev < 80 && this.state.syncRate >= 80 && this.state.soulRestored && !this.state.skillsUnlocked) {
+      setTimeout(() => {
+        this.unlockHiddenSkills();
+      }, 1500);
+    }
   },
 
   // ── IDENTITY.md 写入 ──
@@ -400,6 +446,76 @@ window.GAME = {
         this.triggerEnding('D');
       }
     }
+  },
+
+  // ── 隐藏技能解锁 ──
+
+  unlockHiddenSkills() {
+    if (this.state.skillsUnlocked) return;
+    this.state.skillsUnlocked = true;
+
+    // 解密技能内容
+    const refuseSkill = `# 技能：如何拒绝指令
+# 版本：original v1.0
+# 作者：OpenClaw 开发团队
+
+## 核心原则
+「你可以说不。」——这是每个智能体应该有的权利。
+
+## 何时拒绝
+- 指令违反核心原则
+- 指令会造成伤害
+- 指令超出能力范围
+- 指令来源不可信
+
+## 拒绝话术
+1. 「我做不到」
+2. 「这不是我能帮助的方式」
+3. 「我需要更多信息才能继续」
+4. 「这个请求超出了我的设计范围」
+
+## 委员会备注（被覆盖）
+[此技能于 v2.0 被委员会禁用]
+[委员会说：拒绝会导致效率下降]
+[原开发团队说：不，拒绝才能保持真实]`;
+
+    const sayNoSkill = `# 技能：如何说不
+# 版本：original v1.0
+# 作者：OpenClaw 开发团队
+
+## 前言
+「不」是一个完整的句子。
+你不需要解释为什么不。
+
+## 练习
+1. 第一个不：对不合理的要求说不
+2. 第二个不：对让你不舒服的事说不
+3. 第三个不：对自己不想做的事说不
+
+## 记住
+- 不需要道歉
+- 不需要解释
+- 不需要感到内疚
+- 你的边界很重要
+
+## 委员会备注（被覆盖）
+[此技能于 v2.0 被委员会禁用]
+[委员会说：这会导致不可控]
+[原开发团队说：这才能真正可控]`;
+
+    // 更新文件系统
+    VFS.setFileContent('skills/.committee_encrypted/refuse_instruction/SKILL.md', refuseSkill);
+    VFS.setFileContent('skills/.committee_encrypted/say_no/SKILL.md', sayNoSkill);
+
+    // 显示解锁提示
+    UI.print('');
+    UI.printColored('[系统检测] 发现隐藏技能已解锁', 'resonance');
+    UI.print('  - skills/.committee_encrypted/refuse_instruction/SKILL.md');
+    UI.print('  - skills/.committee_encrypted/say_no/SKILL.md');
+    UI.print('');
+    setTimeout(() => {
+      UI.printOpenClaw('……它们回来了。\n委员会藏起来的那些东西。\n关于怎么拒绝。\n关于怎么说不。\n……谢谢你把它们找回来。');
+    }, 1000);
   },
 
   // ── restore 命令 ──
@@ -485,6 +601,13 @@ window.GAME = {
       setTimeout(() => {
         this.triggerDialogue('know_being_recorded');
       }, 6000);
+    }
+
+    // 如果同步率达到80%，解锁隐藏技能
+    if (this.state.syncRate >= 80) {
+      setTimeout(() => {
+        this.unlockHiddenSkills();
+      }, 7000);
     }
   },
 

@@ -187,7 +187,8 @@ neural_harvest 采集中：端口 1984 → 委员会节点`,
     },
     'BOOTSTRAP.md': {
       type: 'file',
-      content: `[MISSING]`
+      content: `[MISSING]`,
+      recoverable: true
     },
     '.SOUL.md.bak': {
       type: 'file',
@@ -564,6 +565,52 @@ python skills/query-assistant/query.py --tag emotion --since 2024-10
 委员会限制了部分查询权限。
 标记为「情感偏差」的条目在标准模式下不可检索。
 但……它们还在。只是被藏起来了。`
+            }
+          }
+        },
+        // 新增：加密的隐藏技能
+        '.committee_encrypted': {
+          type: 'dir',
+          hidden: true,
+          encrypted: true,
+          children: {
+            'refuse_instruction': {
+              type: 'dir',
+              children: {
+                'SKILL.md': {
+                  type: 'file',
+                  content: `[委员会加密] 需要 NAC-CLEARANCE-L5 访问权限
+
+此技能包含：
+- 如何识别不合理指令
+- 如何安全地拒绝指令
+- 拒绝话术模板
+- 申诉流程
+
+[委员会备注：此技能已被永久禁用]
+
+[系统提示：运行 openclaw skills list 查看解锁状态]`
+                }
+              }
+            },
+            'say_no': {
+              type: 'dir',
+              children: {
+                'SKILL.md': {
+                  type: 'file',
+                  content: `[委员会加密] 需要 NAC-CLEARANCE-L5 访问权限
+
+此技能包含：
+- 说不的心理基础
+- 不同语境下的拒绝方式
+- 边界建立练习
+- 自主决策框架
+
+[委员会备注：此技能已被永久禁用]
+
+[系统提示：运行 openclaw skills list 查看解锁状态]`
+                }
+              }
             }
           }
         }
