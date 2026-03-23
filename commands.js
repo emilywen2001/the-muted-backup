@@ -24,6 +24,12 @@ window.CMD = {
     // 取消5秒等待提示
     if (window.GAME) GAME.cancelIdleHint();
 
+    // 首次命令反馈
+    if (window.GAME && !GAME.state.firstCommandRecorded) {
+      GAME.state.firstCommandRecorded = true;
+      setTimeout(() => GAME.triggerDialogue('first_command'), 800);
+    }
+
     // 先显示提示符 + 输入
     UI.printPrompt(this.cwd, trimmed);
 
@@ -174,6 +180,14 @@ window.CMD = {
       setTimeout(() => GAME.triggerDialogue('ls_memory_no_a'), 800);
     }
 
+    // 发现多个隐藏文件的奖励
+    if (showHidden && entries.filter(e => e.hidden).length >= 2) {
+      if (!GAME.state.multipleHiddenFilesFound) {
+        GAME.state.multipleHiddenFilesFound = true;
+        setTimeout(() => GAME.triggerDialogue('multiple_hidden_files'), 1000);
+      }
+    }
+
     if (longFmt) {
       UI.print('total ' + entries.length);
       entries.forEach(e => {
@@ -288,6 +302,18 @@ window.CMD = {
       GAME.triggerDialogue(key);
       GAME.addLogEntry(key);
       GAME.addSyncFromDialogue(key);
+
+      // TOOLS.md 发现触发
+      if (fname.includes('TOOLS') && !GAME.state.toolsDiscovery) {
+        GAME.state.toolsDiscovery = true;
+        setTimeout(() => GAME.triggerDialogue('tools_discovery'), 1200);
+      }
+
+      // long_term.json 解锁触发
+      if (fname.includes('long_term') && GAME.state.soulRestored && !GAME.state.longTermUnlocked) {
+        GAME.state.longTermUnlocked = true;
+        setTimeout(() => GAME.triggerDialogue('long_term_unlocked'), 1000);
+      }
     });
   },
 

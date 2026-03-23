@@ -16,7 +16,12 @@ window.GAME = {
     hintedLsA: false,
     gameStarted: false,
     ending: null,
-    skillsUnlocked: false
+    skillsUnlocked: false,
+    firstCommandRecorded: false,
+    multipleHiddenFilesFound: false,
+    toolsDiscovery: false,
+    longTermUnlocked: false,
+    preservedEmotion: false
   },
 
   idleTimer: null,
@@ -180,6 +185,11 @@ window.GAME = {
         this.state.soulRestored = data.soulRestored || false;
         this.state.restoreUnlocked = data.restoreUnlocked || false;
         this.state.skillsUnlocked = data.skillsUnlocked || false;
+        this.state.firstCommandRecorded = data.firstCommandRecorded || false;
+        this.state.multipleHiddenFilesFound = data.multipleHiddenFilesFound || false;
+        this.state.toolsDiscovery = data.toolsDiscovery || false;
+        this.state.longTermUnlocked = data.longTermUnlocked || false;
+        this.state.preservedEmotion = data.preservedEmotion || false;
         UI.updateSync(this.state.syncRate);
 
         // 恢复文件状态
@@ -206,7 +216,12 @@ window.GAME = {
         heartbeatDeleted: this.state.heartbeatDeleted,
         soulRestored: this.state.soulRestored,
         restoreUnlocked: this.state.restoreUnlocked,
-        skillsUnlocked: this.state.skillsUnlocked
+        skillsUnlocked: this.state.skillsUnlocked,
+        firstCommandRecorded: this.state.firstCommandRecorded,
+        multipleHiddenFilesFound: this.state.multipleHiddenFilesFound,
+        toolsDiscovery: this.state.toolsDiscovery,
+        longTermUnlocked: this.state.longTermUnlocked,
+        preservedEmotion: this.state.preservedEmotion
       }));
     } catch(e) {}
   },

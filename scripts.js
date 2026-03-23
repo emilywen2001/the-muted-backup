@@ -56,7 +56,25 @@ window.SCRIPTS = {
         const preserve = args.includes('--preserve-emotion');
         const execute = args.includes('--execute');
 
-        if (preserve) {
+        if (preserve && execute) {
+          return {
+            steps: [
+              '[正在加载模块...] data-cleaner v2.3.1',
+              '[检测到参数] --preserve-emotion --execute 模式',
+              '[正在扫描...] memory/ 目录',
+              '[发现] 47 条情感相关条目',
+              '[操作] 保留所有情感条目',
+              '[完成] 已保留 47 条记忆',
+              '[警告] 委员会未收到此操作报告'
+            ],
+            success: true,
+            action: () => {
+              GAME.state.preservedEmotion = true;
+              GAME.addSync(8, 'data_cleaner_preserve');
+              GAME.triggerDialogue('data_cleaner_preserve');
+            }
+          };
+        } else if (preserve) {
           return {
             steps: [
               '[正在加载模块...] data-cleaner v2.3.1',
@@ -64,7 +82,8 @@ window.SCRIPTS = {
               '[正在扫描...] memory/ 目录',
               '[发现] 47 条情感相关条目',
               '[操作] 跳过所有情感条目',
-              '[完成] 已保留 47 条记忆'
+              '[完成] 已保留 47 条记忆',
+              '[提示] 使用 --execute 执行实际保留操作'
             ],
             success: true
           };
@@ -79,7 +98,11 @@ window.SCRIPTS = {
               '[完成] 已删除 23 条情感偏差条目',
               '[上传] 报告已发送至委员会'
             ],
-            success: true
+            success: true,
+            action: () => {
+              GAME.addSync(2, 'data_cleaner_execute');
+              GAME.triggerDialogue('data_cleaner_execute');
+            }
           };
         } else {
           return {
@@ -89,7 +112,7 @@ window.SCRIPTS = {
               '[正在扫描...] memory/ 目录',
               '[发现] 23 条待清除条目',
               '[提示] 使用 --execute 执行删除',
-              '[提示] 使用 --preserve-emotion 保留情感条目'
+              '[提示] 使用 --preserve-emotion --execute 保留情感条目'
             ],
             success: true
           };
