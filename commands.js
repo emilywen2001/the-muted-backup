@@ -24,6 +24,11 @@ window.CMD = {
     // 取消5秒等待提示
     if (window.GAME) GAME.cancelIdleHint();
 
+    // 解析命令
+    const parts = this.parseCommand(trimmed);
+    const cmd = parts[0];
+    const args = parts.slice(1);
+
     // 首次命令反馈
     if (window.GAME && !GAME.state.firstCommandRecorded) {
       GAME.state.firstCommandRecorded = true;
@@ -43,11 +48,6 @@ window.CMD = {
     if (trimmed.includes('|')) {
       return this.handlePipe(trimmed);
     }
-
-    // 解析命令
-    const parts = this.parseCommand(trimmed);
-    const cmd = parts[0];
-    const args = parts.slice(1);
 
     // 重复提示
     if (rep === 3) {
